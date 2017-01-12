@@ -30,7 +30,16 @@ $db_host = 'localhost';
 <script src="jquery.min.js"></script>
 <script src="bootstrap.min.js"></script>
 <script src='Chart.js'></script>
+
+<style>
+table.dashboard{
+   overflow:auto;
+   max-height:150px;
+   display:block;
+}
+</style>
 <meta charset="utf-8" />
+
 
 
 <?php
@@ -59,26 +68,45 @@ $approve_quotes_result = mysql_query($approve_quotes_sql);
 $approve_result = mysql_fetch_array($approve_quotes_result);
 
 
+$valid = "DATE_SUB(NOW(), INTERVAL 90 DAY)";
+
 ?>
 
 </head>
 <body background="../images/background.svg">
 <p>
 
+
+
+
+<div class="cart-view-table-front" id="view-cart">
+<div id="container1">
+<div id="container2">
+<object data="../images/logo.svg" type="image/svg+xml" class="logo" />
+</object>
+<h3 align="center">IT ID&S Quotes Dashboard</h3></center>
+<center>
+
+
+
+
+
 <?php 
 mysql_connect('localhost', 'www', 'www') or die("Error connecting to database: ".mysql_error());     
 mysql_select_db("quotes_db") or die(mysql_error());
 
          
-//$approve_list_sql = mysql_query("SELECT * FROM `quotes` WHERE (`approve` is FALSE)");
 
-$approve_list_sql = mysql_query("SELECT * FROM `quotes`");
+$approve_list_sql = mysql_query("SELECT * FROM `quotes` WHERE `add_time` >= $valid AND `caar` IS TRUE AND `approve` is TRUE ORDER BY `add_time` DESC");
+
 
 
 if(mysql_num_rows($approve_list_sql) > 0){
 	
-echo	"<table class='from_db' cellpadding='6' cellspacing='0'>	
-		<thead><tr><th>RC Number</th><th>Title</th><th>Approved</th></tr></thead>
+echo	"<table class='from_db dashboard' cellpadding='6' cellspacing='0'>
+<thead><tr><th colspan=4><center><h3>Recently Approved Quotes</h3></center></th></tr></thead>
+		
+		<thead><tr><th>RC Number</th><th>Title</th><th>CAAR</th><th>Approved</th></tr></thead>
 		<tbody>
 		";
 
@@ -86,7 +114,20 @@ while($results = mysql_fetch_array($approve_list_sql)){
 $approve = $results["approve"];
 $caar = $results["caar"];
 
-echo "<tr><td>".$results["rcnum"]."</td><td>".$results["title"]."</td><td>";
+$bg_color = ($b++%2==1) ? 'odd' : 'even'; //class for zebra stripe 
+echo '<tr class="'.$bg_color.'">';
+
+echo "<td width=250>".$results["rcnum"]."</td><td width=250>".$results["title"]."</td><td width=250>";
+
+if ($caar == NULL) {
+		echo '<font color="red">No</font>'; 
+		}		
+		
+else if ($caar == TRUE) {
+		echo '<font color="lime">Yes</font>'; 
+}	
+
+echo "</td><td>";
 
 if ($approve == FALSE) {
 		echo '<font color="red">No</font>'; 
@@ -97,7 +138,8 @@ else if ($approve == TRUE) {
 }	
 
 echo "</td></tr>";
-		
+
+
 }
 
 echo "</table>";
@@ -107,13 +149,194 @@ echo "</table>";
 ?>	
 
 
-<div class="cart-view-table-back" id="view-cart">
-<div id="container1">
-<div id="container2">
-<object data="../images/logo.svg" type="image/svg+xml" class="logo" />
-</object>
-<h3 align="center">IT ID&S Quotes Dashboard</h3></center>
-<center>
+<p>
+
+
+
+<?php 
+mysql_connect('localhost', 'www', 'www') or die("Error connecting to database: ".mysql_error());     
+mysql_select_db("quotes_db") or die(mysql_error());
+
+         
+
+$approve_list_sql = mysql_query("SELECT * FROM `quotes` WHERE `add_time` >= $valid AND `caar` IS TRUE AND `approve` is FALSE ORDER BY `add_time` DESC");
+
+
+
+if(mysql_num_rows($approve_list_sql) > 0){
+	
+echo	"<table class='from_db dashboard' cellpadding='6' cellspacing='0'>
+<thead><tr><th colspan=4><center><h3>quotes waiting for approval</h3></center></th></tr></thead>
+		
+		<thead><tr><th>RC Number</th><th>Title</th><th>CAAR</th><th>Approved</th></tr></thead>
+		<tbody>
+		";
+
+while($results = mysql_fetch_array($approve_list_sql)){
+$approve = $results["approve"];
+$caar = $results["caar"];
+
+$bg_color = ($b++%2==1) ? 'odd' : 'even'; //class for zebra stripe 
+echo '<tr class="'.$bg_color.'">';
+
+echo "<td width=250>".$results["rcnum"]."</td><td width=250>".$results["title"]."</td><td width=250>";
+
+if ($caar == NULL) {
+		echo '<font color="red">No</font>'; 
+		}		
+		
+else if ($caar == TRUE) {
+		echo '<font color="lime">Yes</font>'; 
+}	
+
+echo "</td><td>";
+
+if ($approve == FALSE) {
+		echo '<font color="red">No</font>'; 
+		}		
+		
+else if ($approve == TRUE) {
+		echo '<font color="lime">Yes</font>'; 
+}	
+
+echo "</td></tr>";
+
+
+}
+
+echo "</table>";
+
+}
+
+?>	
+
+<p>
+
+<?php 
+mysql_connect('localhost', 'www', 'www') or die("Error connecting to database: ".mysql_error());     
+mysql_select_db("quotes_db") or die(mysql_error());
+
+
+
+$approve_list_sql = mysql_query("SELECT * FROM `quotes` WHERE `add_time` >= $valid ORDER BY `add_time` DESC");
+
+
+
+if(mysql_num_rows($approve_list_sql) > 0){
+	
+echo	"<table class='from_db dashboard' cellpadding='6' cellspacing='0'>
+<thead><tr><th colspan=4><center><h3>Still Valid Quotes</h3></center></th></tr></thead>
+		
+		<thead><tr><th>RC Number</th><th>Title</th><th>CAAR</th><th>Approved</th></tr></thead>
+		<tbody>
+		";
+
+while($results = mysql_fetch_array($approve_list_sql)){
+$approve = $results["approve"];
+$caar = $results["caar"];
+
+$bg_color = ($b++%2==1) ? 'odd' : 'even'; //class for zebra stripe 
+echo '<tr class="'.$bg_color.'">';
+
+echo "<td width=250>".$results["rcnum"]."</td><td width=250>".$results["title"]."</td><td width=250>";
+
+if ($caar == NULL) {
+		echo '<font color="red">No</font>'; 
+		}		
+		
+else if ($caar == TRUE) {
+		echo '<font color="lime">Yes</font>'; 
+}	
+
+echo "</td><td>";
+
+if ($approve == FALSE) {
+		echo '<font color="red">No</font>'; 
+		}		
+		
+else if ($approve == TRUE) {
+		echo '<font color="lime">Yes</font>'; 
+}	
+
+echo "</td></tr>";
+
+
+}
+
+echo "</table>";
+
+}
+
+?>	
+
+<p>
+
+<?php 
+mysql_connect('localhost', 'www', 'www') or die("Error connecting to database: ".mysql_error());     
+mysql_select_db("quotes_db") or die(mysql_error());
+
+
+
+$approve_list_sql = mysql_query("SELECT * FROM `quotes` WHERE `add_time` <= $valid ORDER BY `add_time` DESC ");
+
+
+
+if(mysql_num_rows($approve_list_sql) > 0){
+	
+echo	"<table class='from_db dashboard' cellpadding='6' cellspacing='0'>
+<thead><tr><th colspan=4><center><h3>Expired Quotes</h3></center></th></tr></thead>
+		
+		<thead><tr><th>RC Number</th><th>Title</th><th>CAAR</th><th>Approved</th></tr></thead>
+		<tbody>
+		";
+
+while($results = mysql_fetch_array($approve_list_sql)){
+$approve = $results["approve"];
+$caar = $results["caar"];
+
+$bg_color = ($b++%2==1) ? 'odd' : 'even'; //class for zebra stripe 
+echo '<tr class="'.$bg_color.'">';
+
+echo "<td width=250>".$results["rcnum"]."</td><td width=250>".$results["title"]."</td><td width=250>";
+
+if ($caar == NULL) {
+		echo '<font color="red">No</font>'; 
+		}		
+		
+else if ($caar == TRUE) {
+		echo '<font color="lime">Yes</font>'; 
+}	
+
+echo "</td><td>";
+
+if ($approve == FALSE) {
+		echo '<font color="red">No</font>'; 
+		}		
+		
+else if ($approve == TRUE) {
+		echo '<font color="lime">Yes</font>'; 
+}	
+
+echo "</td></tr>";
+
+
+}
+
+echo "</table>";
+
+}
+
+?>	
+
+
+
+<p>
+
+
+
+
+
+
 <table class="from_db" cellpadding="6" cellspacing="0">
 		<thead><tr><th colspan="2">some title here </th></tr></thead>
 		<tbody>
@@ -121,6 +344,13 @@ echo "</table>";
 		<tr class="even"><td width=250>Funded</td><td width=550><?php echo $caar_result[0]; ?>  </td></tr>
 		<tr class="odd"><td width=250>Not Yet Approved</td><td width=550> <?php echo $approve_result[0]; ?> </td></tr>
 </table>
+
+
+
+
+
+
+
 
 
 
